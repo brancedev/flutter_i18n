@@ -417,7 +417,10 @@ class FlutterModule {
   String createValuesMethod(String key, String value, {bool isOverride = false}) {
     final StringBuffer buffer = _createBuffer(isOverride);
 
-    buffer.writeln('  String get $key => "$value";');
+    if (key.startsWith('@')) {
+      return '';
+    }
+    buffer.writeln('  String get $key => """$value""";');
 
     return buffer.toString();
   }
