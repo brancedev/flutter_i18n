@@ -446,7 +446,7 @@ class FlutterModule {
     }
 
     if (hasParameters) {
-      buffer.writeln(') => "$value";');
+      buffer.writeln(') => """$value""";');
     } else {
       return createValuesMethod(key, value);
     }
