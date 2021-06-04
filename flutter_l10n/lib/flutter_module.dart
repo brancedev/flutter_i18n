@@ -55,6 +55,7 @@ class FlutterModule {
     final Map<String, String> englishData = values['en'];
 
     final StringBuffer buffer = StringBuffer()
+      ..writeln("// @dart=2.9")
       ..writeln("import 'dart:async';")
       ..writeln()
       ..writeln("import 'package:flutter/foundation.dart';")
@@ -178,6 +179,7 @@ class FlutterModule {
 
   String createLanguageClass(String language, List<String> englishKeys, Map<String, String> languageData) {
     final StringBuffer buffer = StringBuffer()
+      ..writeln("// @dart=2.9")
       ..writeln("part of '$_generatedFileName.dart';")
       ..writeln()
       ..writeln('// ignore_for_file: camel_case_types')
