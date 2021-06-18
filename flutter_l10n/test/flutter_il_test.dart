@@ -63,8 +63,8 @@ void main() {
     final FlutterModule module = FlutterModule(source);
 
     expect(module.values.length, 8);
-    expect(module.values.values.every((Map<String, String> it) => it != null && it.isNotEmpty), isTrue);
-    expect(module.values.values.every((Map<String, String> it) => it['app_name'] != null && it['app_name'].isEmpty),
+    expect(module.values.values.every((Map<String, String> it) => it.isNotEmpty), isTrue);
+    expect(module.values.values.every((Map<String, String> it) => it['app_name'] != null && it['app_name']!.isEmpty),
         isTrue);
   });
 
@@ -232,14 +232,14 @@ void main() {
           module.files.map((File it) => MapEntry<String, String>(it.path, it.readAsStringSync()));
       final Map<String, String> data = Map<String, String>.fromEntries(entries);
 
-      await Future<void>.delayed(Duration(minutes: 1));
+      await Future<void>.delayed(const Duration(minutes: 1));
 
       source.deleteSync(recursive: true);
       source.createSync(recursive: true);
       for (String path in data.keys) {
-        File(path).writeAsStringSync(data[path], flush: true);
+        File(path).writeAsStringSync(data[path]!, flush: true);
       }
     },
-    timeout: Timeout(Duration(minutes: 1, seconds: 1)),
+    timeout: const Timeout(Duration(minutes: 1, seconds: 1)),
   );
 }

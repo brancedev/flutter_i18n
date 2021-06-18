@@ -8,9 +8,8 @@ import 'package:path/path.dart';
 part 'plurals_result.dart';
 
 class FlutterModule {
-  FlutterModule(Directory source, [Directory output])
-      : assert(source != null),
-        assert(source.existsSync(), 'The source folder does not exist.'),
+  FlutterModule(Directory source, [Directory? output])
+      : assert(source.existsSync(), 'The source folder does not exist.'),
         source = Directory(canonicalize(source.path)),
         output = output != null && output.existsSync() ? output : Directory(join(source.path, 'generated'))
           ..createSync(recursive: true);
@@ -18,7 +17,7 @@ class FlutterModule {
   final Directory source;
   final Directory output;
 
-  StreamSubscription<FileSystemEvent> _watchSub;
+  StreamSubscription<FileSystemEvent>? _watchSub;
 
   void init() => _checkSourceFolder();
 
@@ -52,7 +51,7 @@ class FlutterModule {
 
     final List<String> languages = this.languages;
     final Map<String, Map<String, String>> values = this.values;
-    final Map<String, String> englishData = values['en'];
+    final Map<String, String> englishData = values['en']!;
 
     final StringBuffer buffer = StringBuffer()
       ..writeln("import 'dart:async';")
@@ -80,7 +79,7 @@ class FlutterModule {
     generatedFile.writeAsStringSync(createGeneratedFile);
 
     final Map<String, Map<String, String>> values = this.values;
-    final Map<String, String> englishData = values['en'];
+    final Map<String, String> englishData = values['en']!;
     final List<String> englishKeys = englishData.keys.toList();
     for (String language in values.keys) {
       final String data = createLanguageClass(language, englishKeys, values[language]);
@@ -104,7 +103,7 @@ class FlutterModule {
 
         // ignore: unnecessary_this
         final Map<String, Map<String, String>> values = this.values;
-        final Map<String, String> englishData = values['en'];
+        final Map<String, String> englishData = values['en']!;
         final List<String> englishKeys = englishData.keys.toList();
 
         final String language = _languageFromPath(event.path);
@@ -147,7 +146,7 @@ class FlutterModule {
     final List<String> pluralsKeys = pluralsQuantities.keys.toList()..sort();
     keys.removeWhere(pluralsResult.pluralsIds.contains);
 
-    final List<String> parametrized = keys.where((String key) => englishData[key].contains(r'$')).toList()..sort();
+    final List<String> parametrized = keys.where((String key) => englishData[key]!.contains(r'$')).toList()..sort();
     keys
       ..removeWhere(parametrized.contains)
       ..sort();
@@ -168,7 +167,7 @@ class FlutterModule {
       ..writeln()
       ..writeAll(keys.map<String>((String key) => createValuesMethod(key, englishData[key])))
       ..writeln()
-      ..writeAll(parametrized.map<String>((String key) => createParametrizedMethod(key, englishData[key])))
+      ..writeAll(parametrized.map<String>((String key) => createParametrizedMethod(key, englishData[key]!)))
       ..writeln()
       ..writeAll(pluralsKeys.map<String>((String key) => createPluralMethod(key, pluralsQuantities[key], englishData)))
       ..writeln('}');
@@ -176,7 +175,7 @@ class FlutterModule {
     return buffer.toString();
   }
 
-  String createLanguageClass(String language, List<String> englishKeys, Map<String, String> languageData) {
+  String createLanguageClass(String language, List<String> englishKeys, Map<String, String>? languageData) {
     final StringBuffer buffer = StringBuffer()
       ..writeln("part of '$_generatedFileName.dart';")
       ..writeln()
@@ -196,14 +195,14 @@ class FlutterModule {
       return buffer.toString();
     }
 
-    final List<String> keys = languageData.keys.where(englishKeys.contains).toList();
+    final List<String> keys = languageData!.keys.where(englishKeys.contains).toList();
 
     final PluralsResult pluralsResult = findPluralsKeys(keys);
     final Map<String, List<String>> pluralsQuantities = pluralsResult.pluralsQuantities;
     final List<String> pluralsKeys = pluralsQuantities.keys.toList()..sort();
     keys.removeWhere(pluralsResult.pluralsIds.contains);
 
-    final List<String> parametrized = keys.where((String key) => languageData[key].contains(r'$')).toList()..sort();
+    final List<String> parametrized = keys.where((String key) => languageData[key]!.contains(r'$')).toList()..sort();
     keys
       ..removeWhere(parametrized.contains)
       ..sort();
@@ -221,7 +220,7 @@ class FlutterModule {
       ..writeAll(keys.map<String>((String key) => createValuesMethod(key, languageData[key], isOverride: true)))
       ..writeln()
       ..writeAll(
-          parametrized.map<String>((String key) => createParametrizedMethod(key, languageData[key], isOverride: true)))
+          parametrized.map<String>((String key) => createParametrizedMethod(key, languageData[key]!, isOverride: true)))
       ..writeln()
       ..writeAll(pluralsKeys
           .map<String>((String key) => createPluralMethod(key, pluralsQuantities[key], languageData, isOverride: true)))
@@ -380,9 +379,8 @@ class FlutterModule {
 
     for (int i = 0; i < keys.length; i++) {
       final String key = keys[i];
-      final String quantity = _pluralEnding.firstWhere(
+      final String? quantity = _pluralEnding.firstWhereOrNull(
         (String quantity) => RegExp('$quantity\$', caseSensitive: false).hasMatch(key),
-        orElse: () => null,
       );
       final bool isPlural = quantity != null;
 
@@ -393,7 +391,7 @@ class FlutterModule {
         pluralsQuantities[actualKey] = (pluralsQuantities[actualKey] ?? <String>[]) //
           ..add(quantity.toLowerCase());
 
-        pluralsQuantities[actualKey].sort(_sortQuantities);
+        pluralsQuantities[actualKey]!.sort(_sortQuantities);
       }
     }
 
@@ -414,7 +412,7 @@ class FlutterModule {
     return PluralsResult(pluralKeys, pluralsQuantities);
   }
 
-  String createValuesMethod(String key, String value, {bool isOverride = false}) {
+  String createValuesMethod(String key, String? value, {bool isOverride = false}) {
     final StringBuffer buffer = _createBuffer(isOverride);
 
     if (key.startsWith('@')) {
@@ -437,7 +435,7 @@ class FlutterModule {
         buffer.write('  String $key(');
       }
 
-      final String parameter = _normalizeParameter(m.group(0));
+      final String parameter = _normalizeParameter(m.group(0)!);
       buffer.write('dynamic $parameter');
 
       if (i != matches.length - 1) {
@@ -454,7 +452,7 @@ class FlutterModule {
     return buffer.toString();
   }
 
-  String createPluralMethod(String key, List<String> quantities, Map<String, String> values,
+  String createPluralMethod(String key, List<String>? quantities, Map<String, String> values,
       {bool isOverride = false}) {
     final StringBuffer buffer = _createBuffer(isOverride);
     final String parameterName = _extractOtherParameterName(key, values);
@@ -464,14 +462,14 @@ class FlutterModule {
     for (int i = 0; i < _pluralEnding.length; i++) {
       final String quantity = _pluralEnding[i];
 
-      if (!quantities.contains(quantity)) {
+      if (!quantities!.contains(quantity)) {
         continue;
       }
 
       final String _key =
           values.keys.firstWhere((String possibleKey) => possibleKey.toLowerCase() == '$key$quantity'.toLowerCase());
 
-      final String value = values[_key];
+      final String? value = values[_key];
       if (quantity == 'other') {
         buffer //
           ..writeln('      default:')
@@ -501,10 +499,10 @@ class FlutterModule {
   String _extractOtherParameterName(String key, Map<String, String> values) {
     final String otherValueKey =
         values.keys.firstWhere((String _key) => _key.startsWith(key) && _key.toLowerCase().endsWith('other'));
-    final String otherValueValue = values[otherValueKey];
+    final String otherValueValue = values[otherValueKey]!;
 
     if (parameterRegExp.hasMatch(otherValueValue)) {
-      return _normalizeParameter(parameterRegExp.firstMatch(otherValueValue).group(0));
+      return _normalizeParameter(parameterRegExp.firstMatch(otherValueValue)!.group(0)!);
     } else {
       return 'param';
     }
@@ -517,7 +515,7 @@ class FlutterModule {
         .replaceAll(r'}', '');
   }
 
-  StringBuffer _createBuffer([bool isOverride]) {
+  StringBuffer _createBuffer([bool? isOverride]) {
     final StringBuffer buffer = StringBuffer();
 
     isOverride ??= false;
@@ -538,7 +536,7 @@ class FlutterModule {
     }
   }
 
-  int _sortQuantities(String a, String b) => _pluralEndingSortOrder[a].compareTo(_pluralEndingSortOrder[b]);
+  int _sortQuantities(String a, String b) => _pluralEndingSortOrder[a]!.compareTo(_pluralEndingSortOrder[b]!);
 
   String _quantityMapping(String quantity) {
     switch (quantity) {
