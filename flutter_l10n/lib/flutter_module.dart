@@ -285,7 +285,7 @@ class FlutterModule {
       ..writeln()
       ..writeln(r'  @override')
       ..writeln(r'  Future<S> load(Locale locale) {')
-      ..writeln(r'    final String lang = getLang(locale);')
+      ..writeln(r'    final String? lang = getLang(locale);')
       ..writeln(r'    if (lang != null) {')
       ..writeln(r'      switch (lang) {');
 
@@ -340,7 +340,7 @@ class FlutterModule {
       ..writeln(r'  }')
       ..writeln()
       ..writeln(r'  /// Returns true if the specified locale is supported, false otherwise.')
-      ..writeln(r'  bool _isSupported(Locale locale, bool withCountry) {')
+      ..writeln(r'  bool _isSupported(Locale? locale, bool withCountry) {')
       ..writeln(r'    if (locale != null) {')
       ..writeln(r'      for (Locale supportedLocale in supportedLocales) {')
       ..writeln(r'        // Language must always match both locales.')
@@ -355,7 +355,7 @@ class FlutterModule {
       ..writeln()
       ..writeln(r'        // If no country requirement is requested, check if this locale has no country.')
       ..writeln(
-          r'        if (!withCountry && (supportedLocale.countryCode == null || supportedLocale.countryCode.isEmpty)) {')
+          r'        if (!withCountry && (supportedLocale.countryCode == null || supportedLocale.countryCode!.isEmpty)) {')
       ..writeln(r'          return true;')
       ..writeln(r'        }')
       ..writeln(r'      }')
@@ -365,7 +365,7 @@ class FlutterModule {
       ..writeln(r'}')
       ..writeln()
       ..writeln(r'String? getLang(Locale l) =>')
-      ..writeln(r'  : l.countryCode != null && l.countryCode.isEmpty')
+      ..writeln(r' l.countryCode != null && l.countryCode!.isEmpty')
       ..writeln(r'    ? l.languageCode')
       ..writeln(r'    : l.toString();');
 
