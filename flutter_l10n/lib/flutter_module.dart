@@ -187,6 +187,26 @@ class FlutterModule {
       ..writeln('  @override')
       ..writeln('  TextDirection get textDirection => TextDirection.ltr;')
       ..writeln()
+      ..writeln('''
+  @override
+  String get reorderItemDown => throw UnimplementedError();
+
+  @override
+  String get reorderItemLeft => throw UnimplementedError();
+
+  @override
+  String get reorderItemRight => throw UnimplementedError();
+
+  @override
+  String get reorderItemToEnd => throw UnimplementedError();
+
+  @override
+  String get reorderItemToStart => throw UnimplementedError();
+
+  @override
+  String get reorderItemUp => throw UnimplementedError();
+      ''')
+      ..writeln()
       ..writeAll(keys.map<String>(
           (String key) => createValuesMethod(key, englishData[key])))
       ..writeln()
