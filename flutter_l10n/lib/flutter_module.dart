@@ -156,7 +156,7 @@ class FlutterModule {
 
   String createSClass(Map<String, String> englishData) {
     final StringBuffer buffer = StringBuffer();
-    final List<String> keys = englishData.keys.toList();
+    final List<String> keys = englishData.keys.map((key) => key.replaceAll('-ignore-', '')).toList();
 
     final PluralsResult pluralsResult = findPluralsKeys(keys);
     final Map<String, List<String>> pluralsQuantities =
@@ -242,8 +242,10 @@ class FlutterModule {
       return buffer.toString();
     }
 
-    final List<String> keys =
-        languageData!.keys.where(englishKeys.contains).toList();
+    final List<String> keys = languageData!.keys
+        .map((key) => key.replaceAll('-ignore-', ''))
+        .where(englishKeys.contains)
+        .toList();
 
     final PluralsResult pluralsResult = findPluralsKeys(keys);
     final Map<String, List<String>> pluralsQuantities =
@@ -451,7 +453,7 @@ class FlutterModule {
         <String, List<String>>{};
 
     for (int i = 0; i < keys.length; i++) {
-      final String key = keys[i];
+      final String key = keys[i].replaceAll('-ignore-', '');
       final String? quantity = _pluralEnding.firstWhereOrNull(
         (String quantity) =>
             RegExp('$quantity\$', caseSensitive: false).hasMatch(key),
@@ -495,7 +497,7 @@ class FlutterModule {
     if (key.startsWith('@')) {
       return '';
     }
-    final cleanKey = key.replaceAll('-ignore-', '');
+    final String cleanKey = key.replaceAll('-ignore-', '');
     buffer.writeln('  String get $cleanKey => """$value""";');
 
     return buffer.toString();
@@ -506,7 +508,7 @@ class FlutterModule {
     final StringBuffer buffer = _createBuffer(isOverride);
     final List<Match> matches = parameterRegExp.allMatches(value).toList();
 
-    final cleanKey = key.replaceAll('-ignore-', '');
+    final String cleanKey = key.replaceAll('-ignore-', '');
     bool hasParameters = false;
     for (int i = 0; i < matches.length; i++) {
       final Match m = matches[i];
@@ -575,8 +577,7 @@ class FlutterModule {
 
     final dynamic json = jsonDecode(file.readAsStringSync());
     return (Map<String, dynamic>.from(json) //
-          ..removeWhere((String key, dynamic value) =>
-              value is! String && key.startsWith('@')))
+      ..removeWhere((String key, dynamic value) => value is! String && key.startsWith('@')))
         .map((key, value) => MapEntry(key.replaceAll('-ignore-', ''), value))
         .cast<String, String>();
   }
