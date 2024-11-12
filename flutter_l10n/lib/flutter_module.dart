@@ -495,7 +495,8 @@ class FlutterModule {
     if (key.startsWith('@')) {
       return '';
     }
-    buffer.writeln('  String get $key => """$value""";');
+    final cleanKey = key.replaceAll('-ignore-', '');
+    buffer.writeln('  String get $cleanKey => """$value""";');
 
     return buffer.toString();
   }
@@ -505,12 +506,13 @@ class FlutterModule {
     final StringBuffer buffer = _createBuffer(isOverride);
     final List<Match> matches = parameterRegExp.allMatches(value).toList();
 
+    final cleanKey = key.replaceAll('-ignore-', '');
     bool hasParameters = false;
     for (int i = 0; i < matches.length; i++) {
       final Match m = matches[i];
       if (!hasParameters) {
         hasParameters = true;
-        buffer.write('  String $key(');
+        buffer.write('  String $cleanKey(');
       }
 
       final String parameter = _normalizeParameter(m.group(0)!);
@@ -524,7 +526,7 @@ class FlutterModule {
     if (hasParameters) {
       buffer.writeln(') => """$value""";');
     } else {
-      return createValuesMethod(key, value);
+      return createValuesMethod(cleanKey, value);
     }
 
     return buffer.toString();
@@ -536,6 +538,7 @@ class FlutterModule {
     final StringBuffer buffer = _createBuffer(isOverride);
     final String parameterName = _extractOtherParameterName(key, values);
 
+    key = key.replaceAll('-ignore-', '');
     key = key.endsWith('_') ? key.substring(0, key.length - 1) : key;
     buffer.writeln(
         '  String $key(dynamic $parameterName) {\n    switch ($parameterName.toString().toLowerCase()) {');
