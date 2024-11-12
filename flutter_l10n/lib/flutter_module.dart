@@ -574,6 +574,7 @@ class FlutterModule {
     return (Map<String, dynamic>.from(json) //
           ..removeWhere((String key, dynamic value) =>
               value is! String && key.startsWith('@')))
+        .map((key, value) => MapEntry(key.replaceAll('-ignore-', ''), value))
         .cast<String, String>();
   }
 
